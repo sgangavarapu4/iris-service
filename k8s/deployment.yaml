@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iris-deployment
+  labels:
+    app: iris-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: iris-app
+  template:
+    metadata:
+      labels:
+        app: iris-app
+    spec:
+      containers:
+      - name: iris-container
+        # Use your verified Docker Hub image
+        image: krithik9/iris-service:v1 
+        ports:
+        - containerPort: 8000
+        # This ensures it checks for a new image if you push a same-tag update
+        imagePullPolicy: Always 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: iris-service
+spec:
+  # LoadBalancer is the best choice for Docker Desktop users
+  type: LoadBalancer 
+  selector:
+    app: iris-app
+  ports:
+    - protocol: TCP
+      port: 80         # Access this via http://localhost
+      targetPort: 8000 # Your FastAPI port
