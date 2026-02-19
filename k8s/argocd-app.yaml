@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: iris-service-prod
+  namespace: argocd # This stays in argocd namespace as it's a config for Argo
+spec:
+  project: default # In prod, you'd later replace this with a restricted AppProject
+  source:
+    repoURL: 'https://github.com/sgangavarapu4/iris-service/tree/main/k8s'
+    targetRevision: HEAD
+    path: k8s # The folder where your deployment.yaml lives
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: iris-production
+  syncPolicy:
+    automated:
+      prune: true      # Deletes resources if you remove them from Git
+      selfHeal: true   # Overwrites manual changes made via kubectl (Anti-drift)
+    syncOptions:
+      - CreateNamespace=true
