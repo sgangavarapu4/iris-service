@@ -6,8 +6,8 @@ metadata:
 spec:
   project: default # In prod, you'd later replace this with a restricted AppProject
   source:
-    repoURL: 'https://github.com/sgangavarapu4/iris-service/tree/main/k8s'
-    targetRevision: HEAD
+    repoURL: 'https://github.com/sgangavarapu4/iris-service.git'
+    targetRevision: main
     path: k8s # The folder where your deployment.yaml lives
   destination:
     server: 'https://kubernetes.default.svc'
