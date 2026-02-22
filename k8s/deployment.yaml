@@ -5,7 +5,7 @@ metadata:
   labels:
     app: iris-app
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: iris-app
@@ -36,3 +36,21 @@ spec:
     - protocol: TCP
       port: 80         # Access this via http://localhost
       targetPort: 8000 # Your FastAPI port
+
+spec:
+  template:
+    spec:
+      containers:
+      - name: iris-container
+        image: krithik9/iris-service:v1
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: "/var/secrets/google/key.json"
+        volumeMounts:
+        - name: gcp-key-volume
+          mountPath: /var/secrets/google
+          readOnly: true
+      volumes:
+      - name: gcp-key-volume
+        secret:
+          secretName: gcp-mlo-key
