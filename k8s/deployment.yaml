@@ -3,10 +3,8 @@ kind: Deployment
 metadata:
   name: iris-deployment
   namespace: iris-production
-  labels:
-    app: iris-app
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: iris-app
@@ -17,32 +15,36 @@ spec:
     spec:
       containers:
       - name: iris-container
-        image: krithik9/iris-service:v1 
-        imagePullPolicy: Always 
-        ports:
-        - containerPort: 8000
+        image: krithik9/iris-service:v1
         env:
+        # Tell Google's libraries where to find the mounted token
         - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: "/var/secrets/google/key.json"
+          value: "/root/.config/gcloud/application_default_credentials.json"
         volumeMounts:
-        - name: gcp-key-volume
-          mountPath: /var/secrets/google
+        - name: gcp-adc-token
+          mountPath: /root/.config/gcloud
           readOnly: true
       volumes:
-      - name: gcp-key-volume
-        secret:
-          secretName: gcp-mlo-key
----
-apiVersion: v1
+      - name: gcp-adc-token
+        hostPath:
+          # This is the "Magic Path" for Docker Desktop/Kind on Windows
+          path: /run/desktop/mnt/host/c/Users/hp/AppData/Roaming/gcloud
+          type: Directory
+
+          apiVersion: v1
+---         
 kind: Service
 metadata:
   name: iris-service
   namespace: iris-production
 spec:
-  type: LoadBalancer 
   selector:
+    # This MUST match the labels in your Deployment template
     app: iris-app
   ports:
     - protocol: TCP
-      port: 80         # Port exposed to the outside
-      targetPort: 8000 # Matches containerPort in Deployment
+      port: 80         # The port other pods use to talk to the service
+      targetPort: 8000 # The port your FastAPI app is actually listening on
+      type: NodePort: 30001      # Internal-only (standard for backend services)
+---
+# Your Deployment goes here...
