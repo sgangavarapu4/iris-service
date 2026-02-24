@@ -1,6 +1,9 @@
-﻿fastapi
+fastapi
 uvicorn
 joblib
 scikit-learn
 numpy
 pydantic
+google-cloud-aiplatform==1.70.0
+google-cloud-storage==2.14.0
+kfp==2.5.0

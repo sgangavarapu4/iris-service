@@ -1,0 +1,81 @@
+# PIPELINE DEFINITION
+# Name: iris-retrain
+# Inputs:
+#    bucket_name: str
+#    project_id: str
+components:
+  comp-train-iris-task:
+    executorLabel: exec-train-iris-task
+    inputDefinitions:
+      parameters:
+        bucket_name:
+          parameterType: STRING
+        project_id:
+          parameterType: STRING
+deploymentSpec:
+  executors:
+    exec-train-iris-task:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - train_iris_task
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'scikit-learn'\
+          \ 'joblib' 'google-cloud-storage'  &&  python3 -m pip install --quiet --no-warn-script-location\
+          \ 'kfp==2.15.2' '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"\
+          3.9\"' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef train_iris_task(project_id: str, bucket_name: str):\n    from\
+          \ sklearn.datasets import load_iris\n    from sklearn.ensemble import RandomForestClassifier\n\
+          \    import joblib\n    from google.cloud import storage\n    import os\n\
+          \n    # 1. Train\n    data = load_iris()\n    model = RandomForestClassifier()\n\
+          \    model.fit(data.data, data.target)\n\n    # 2. Save locally in the temporary\
+          \ container\n    local_file = \"model.pkl\"\n    joblib.dump(model, local_file)\n\
+          \n    # 3. Upload to GCS\n    # This uses the default credentials assigned\
+          \ to the Vertex AI worker\n    client = storage.Client(project=project_id)\n\
+          \    bucket = client.bucket(bucket_name)\n    blob = bucket.blob(\"models/iris_model_v1.pkl\"\
+          )\n    blob.upload_from_filename(local_file)\n\n    print(f\"Model successfully\
+          \ uploaded to gs://{bucket_name}/models/iris_model_v1.pkl\")\n\n"
+        image: python:3.9
+pipelineInfo:
+  name: iris-retrain
+root:
+  dag:
+    tasks:
+      train-iris-task:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-train-iris-task
+        inputs:
+          parameters:
+            bucket_name:
+              componentInputParameter: bucket_name
+            project_id:
+              componentInputParameter: project_id
+        taskInfo:
+          name: train-iris-task
+  inputDefinitions:
+    parameters:
+      bucket_name:
+        parameterType: STRING
+      project_id:
+        parameterType: STRING
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.15.2
