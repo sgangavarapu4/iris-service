@@ -43,5 +43,5 @@ spec:
       volumes:
       - name: gcp-adc-token
         hostPath:
-          path: /run/desktop/mnt/host/c/Users/hp/AppData/Roaming/gcloud
-          type: Directory
+          path: "/run/desktop/mnt/host/c/Users/hp/AppData/Roaming/gcloud"
+          type: DirectoryOrCreate
