@@ -1,0 +1,14 @@
+# Python junk
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Credentials (CRITICAL)
+application_default_credentials.json
+*.json
+
+# Artifacts
+*.pkl
+*.joblib
