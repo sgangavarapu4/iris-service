@@ -12,3 +12,6 @@ application_default_credentials.json
 # Artifacts
 *.pkl
 *.joblib
+.venv/
+.pytest_cache/
+.vscode/
