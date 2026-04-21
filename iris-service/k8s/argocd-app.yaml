@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: 'https://github.com/sgangavarapu4/iris-service.git'
     targetRevision: main
-    path: k8s # The folder where your deployment.yaml lives
+    path: iris-service/k8s # The folder where your deployment.yaml lives
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: iris-production
