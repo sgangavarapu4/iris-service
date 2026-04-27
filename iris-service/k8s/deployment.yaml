@@ -19,7 +19,7 @@ metadata:
   name: iris-deployment
   namespace: iris-production
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: iris-app
