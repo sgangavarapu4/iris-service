@@ -1,12 +1,19 @@
+# Web & API
 fastapi
-uvicorn
-joblib
+uvicorn[standard]
+pydantic
+
+# Machine Learning
 scikit-learn
 numpy
-pydantic
-google-cloud-aiplatform==1.70.0
-google-cloud-storage==2.14.0
-kfp==2.5.0
+joblib
+
+# GCP & MLOps (Letting pip resolve the best match)
+google-cloud-aiplatform
+google-cloud-storage
+kfp
+
+# Observability
 opentelemetry-api
 opentelemetry-sdk
 opentelemetry-exporter-otlp

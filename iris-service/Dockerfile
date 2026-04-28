@@ -1,16 +1,20 @@
-# 1. Use a lightweight Python image
-FROM python:3.11
+FROM python:3.11-slim
+
+# Install system dependencies for C-extensions and Google SDK
+RUN apt-get update && apt-get install -y \
+    libffi-dev \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /code
 
-# Copy requirements first to keep builds fast (caching)
 COPY ./requirements.txt /code/requirements.txt
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
-# Copy the entire app folder (This now includes your model AND pipeline yaml)
+# CRITICAL: Upgrade pip first to handle complex dependency resolutions
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r /code/requirements.txt
+
 COPY ./app /code/app
-
-# Set PYTHONPATH so python can find the 'app' module easily
 ENV PYTHONPATH=/code
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
