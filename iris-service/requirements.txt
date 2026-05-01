@@ -17,5 +17,6 @@ kfp
 opentelemetry-api
 opentelemetry-sdk
 opentelemetry-exporter-otlp
+opentelemetry-semantic-conventions
 opentelemetry-instrumentation-fastapi
 opentelemetry-instrumentation-logging
